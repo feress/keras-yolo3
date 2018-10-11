@@ -5,7 +5,7 @@ class YOLO_Kmeans:
 
     def __init__(self, cluster_number, filename):
         self.cluster_number = cluster_number
-        self.filename = "2012_train.txt"
+        self.filename = "kitti_labels.txt"
 
     def iou(self, boxes, clusters):  # 1 box -> k clusters
         n = boxes.shape[0]
@@ -57,17 +57,6 @@ class YOLO_Kmeans:
 
         return clusters
 
-    def result2txt(self, data):
-        f = open("yolo_anchors.txt", 'w')
-        row = np.shape(data)[0]
-        for i in range(row):
-            if i == 0:
-                x_y = "%d,%d" % (data[i][0], data[i][1])
-            else:
-                x_y = ", %d,%d" % (data[i][0], data[i][1])
-            f.write(x_y)
-        f.close()
-
     def txt2boxes(self):
         f = open(self.filename, 'r')
         dataSet = []
@@ -88,14 +77,13 @@ class YOLO_Kmeans:
         all_boxes = self.txt2boxes()
         result = self.kmeans(all_boxes, k=self.cluster_number)
         result = result[np.lexsort(result.T[0, None])]
-        self.result2txt(result)
         print("K anchors:\n {}".format(result))
         print("Accuracy: {:.2f}%".format(
             self.avg_iou(all_boxes, result) * 100))
 
 
 if __name__ == "__main__":
-    cluster_number = 9
-    filename = "2012_train.txt"
+    cluster_number = 6
+    filename = "kitti_labels.txt"
     kmeans = YOLO_Kmeans(cluster_number, filename)
     kmeans.txt2clusters()
